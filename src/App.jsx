@@ -412,7 +412,7 @@ const copyCommand = (command) => {
             <div className="form-grid">
               <input className="text-input" placeholder="エモート名（英語）" value={form.englishName} onChange={(e) => handleChange("englishName", e.target.value)} />
               <input className="text-input" placeholder="エモート名（日本語）" value={form.japaneseName} onChange={(e) => handleChange("japaneseName", e.target.value)} />
-              <input className="text-input" placeholder="コマンド 例：/e dance" value={form.command} onChange={(e) => handleChange("command", e.target.value)} />
+              <input className="text-input" placeholder="コマンド 例：e dance" value={form.command} onChange={(e) => handleChange("command", e.target.value)} />
               <input className="text-input" placeholder="意味" value={form.meaning} onChange={(e) => handleChange("meaning", e.target.value)} />
               <textarea className="text-area" placeholder="備考" value={form.note} onChange={(e) => handleChange("note", e.target.value)} />
 
