@@ -325,7 +325,7 @@ const copyCommand = (command) => {
   return (
     <div className="app">
       <aside className="sidebar">
-        <h2 className="logo">GTA Emote</h2>
+        <h2 className="logo">JTS Emote</h2>
 
         <div className={`menu-button ${activeTab === "list" ? "active" : ""}`} onClick={() => setActiveTab("list")}>
           📋 エモート一覧
@@ -348,7 +348,7 @@ const copyCommand = (command) => {
   </button>
 </div>
 
-        <h1>GTA Emote Manager</h1>
+        <h1>JTS Emote Manager</h1>
 
         {activeTab === "list" && (
           <section>
