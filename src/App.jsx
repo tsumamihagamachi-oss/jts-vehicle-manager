@@ -1,41 +1,46 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
-const tagOptions = ["通常", "ポーズ", "ダンス", "小物", "共有", "上半身", "全身"];
+const tagOptions = ["コンパクト", "クーペ", "セダン", "SUV", "スーパーカー", "バイク", "船"];
+const gripOptions = ["非常に安定", "安定", "普通", "滑りやすい"];
 
 function App() {
   const [activeTab, setActiveTab] = useState("list");
   const [searchText, setSearchText] = useState("");
   const [searchTags, setSearchTags] = useState([]);
-  const [emotes, setEmotes] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
-  const ACCESS_CODE = "JTS-EMOTE";
+  const ACCESS_CODE = "JTS-VEHICLE";
 
   const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("jts-auth") === "ok"
+    localStorage.getItem("jts-vehicle-auth") === "ok"
   );
 
   const [accessCode, setAccessCode] = useState("");
 
   const [form, setForm] = useState({
-    englishName: "",
-    japaneseName: "",
-    command: "",
-    meaning: "",
+    vehicleName: "",
+    vehicleKana: "",
+    price: "",
+    acceleration1: "",
+    acceleration2: "",
+    topSpeed: "",
+    grip: "普通",
+    loadCapacity: "",
     note: "",
     tags: [],
     image: "",
   });
 
   useEffect(() => {
-    loadEmotes();
+    loadVehicles();
   }, []);
 
-  async function loadEmotes() {
+  async function loadVehicles() {
     const { data, error } = await supabase
-      .from("emotes")
+      .from("vehicles")
       .select("*")
       .order("id", { ascending: true });
 
@@ -48,15 +53,19 @@ function App() {
     const convertedData = data.map((item) => ({
       id: item.id,
       image: item.image_url || "",
-      englishName: item.english_name || "",
-      japaneseName: item.japanese_name || "",
-      command: item.command || "",
-      tags: item.tags ? item.tags.split(",") : [],
-      meaning: item.meaning || "",
+      vehicleName: item.vehicle_name || "",
+      vehicleKana: item.vehicle_kana || "",
+      price: item.price || "",
+      acceleration1: item.acceleration_1 || "",
+      acceleration2: item.acceleration_2 || "",
+      topSpeed: item.top_speed || "",
+      grip: item.grip || "普通",
+      loadCapacity: item.load_capacity || "",
       note: item.note || "",
+      tags: item.tags ? item.tags.split(",") : [],
     }));
 
-    setEmotes(convertedData);
+    setVehicles(convertedData);
   }
 
   const handleChange = (key, value) => {
@@ -76,10 +85,10 @@ function App() {
 
     const fileExt = selectedImageFile.name.split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `emotes/${fileName}`;
+    const filePath = `vehicles/${fileName}`;
 
     const { error } = await supabase.storage
-      .from("emote-images")
+      .from("vehicle-images")
       .upload(filePath, selectedImageFile);
 
     if (error) {
@@ -89,7 +98,7 @@ function App() {
     }
 
     const { data } = supabase.storage
-      .from("emote-images")
+      .from("vehicle-images")
       .getPublicUrl(filePath);
 
     return data.publicUrl;
@@ -113,31 +122,40 @@ function App() {
 
   const resetForm = () => {
     setForm({
-      englishName: "",
-      japaneseName: "",
-      command: "",
-      meaning: "",
+      vehicleName: "",
+      vehicleKana: "",
+      price: "",
+      acceleration1: "",
+      acceleration2: "",
+      topSpeed: "",
+      grip: "普通",
+      loadCapacity: "",
       note: "",
       tags: [],
       image: "",
     });
+
     setSelectedImageFile(null);
     setEditingId(null);
   };
 
-  const saveEmote = async () => {
-    if (!form.englishName || !form.japaneseName || !form.command) {
-      alert("英語名・日本語名・コマンドは必須です");
+  const saveVehicle = async () => {
+    if (!form.vehicleName || !form.vehicleKana) {
+      alert("車名（英語）と車名（カタカナ）は必須です");
       return;
     }
 
     const uploadedImageUrl = await uploadImageToStorage();
 
     const saveData = {
-      english_name: form.englishName,
-      japanese_name: form.japaneseName,
-      command: form.command,
-      meaning: form.meaning,
+      vehicle_name: form.vehicleName,
+      vehicle_kana: form.vehicleKana,
+      price: form.price,
+      acceleration_1: form.acceleration1,
+      acceleration_2: form.acceleration2,
+      top_speed: form.topSpeed,
+      grip: form.grip,
+      load_capacity: form.loadCapacity,
       note: form.note,
       tags: form.tags.join(","),
       image_url: uploadedImageUrl,
@@ -147,13 +165,13 @@ function App() {
 
     if (editingId) {
       const result = await supabase
-        .from("emotes")
+        .from("vehicles")
         .update(saveData)
         .eq("id", editingId);
 
       error = result.error;
     } else {
-      const result = await supabase.from("emotes").insert([saveData]);
+      const result = await supabase.from("vehicles").insert([saveData]);
       error = result.error;
     }
 
@@ -164,32 +182,36 @@ function App() {
     }
 
     resetForm();
-    await loadEmotes();
+    await loadVehicles();
     setActiveTab("list");
   };
 
-  const editEmote = (emote) => {
-    setEditingId(emote.id);
+  const editVehicle = (vehicle) => {
+    setEditingId(vehicle.id);
     setSelectedImageFile(null);
 
     setForm({
-      englishName: emote.englishName,
-      japaneseName: emote.japaneseName,
-      command: emote.command,
-      meaning: emote.meaning,
-      note: emote.note,
-      tags: emote.tags,
-      image: emote.image,
+      vehicleName: vehicle.vehicleName,
+      vehicleKana: vehicle.vehicleKana,
+      price: vehicle.price,
+      acceleration1: vehicle.acceleration1,
+      acceleration2: vehicle.acceleration2,
+      topSpeed: vehicle.topSpeed,
+      grip: vehicle.grip,
+      loadCapacity: vehicle.loadCapacity,
+      note: vehicle.note,
+      tags: vehicle.tags,
+      image: vehicle.image,
     });
 
     setActiveTab("register");
   };
 
-  const deleteEmote = async (id) => {
-    const ok = confirm("このエモートを削除しますか？");
+  const deleteVehicle = async (id) => {
+    const ok = confirm("この車両を削除しますか？");
     if (!ok) return;
 
-    const { error } = await supabase.from("emotes").delete().eq("id", id);
+    const { error } = await supabase.from("vehicles").delete().eq("id", id);
 
     if (error) {
       console.error(error);
@@ -197,74 +219,86 @@ function App() {
       return;
     }
 
-    await loadEmotes();
-};
+    await loadVehicles();
+  };
 
-const login = () => {
-  if (accessCode === ACCESS_CODE) {
-    localStorage.setItem("jts-auth", "ok");
-    setIsLoggedIn(true);
-  } else {
-    alert("アクセスコードが違います");
-  }
-};
+  const login = () => {
+    if (accessCode === ACCESS_CODE) {
+      localStorage.setItem("jts-vehicle-auth", "ok");
+      setIsLoggedIn(true);
+    } else {
+      alert("アクセスコードが違います");
+    }
+  };
 
-const logout = () => {
-  localStorage.removeItem("jts-auth");
-  setIsLoggedIn(false);
-};
+  const logout = () => {
+    localStorage.removeItem("jts-vehicle-auth");
+    setIsLoggedIn(false);
+  };
 
-const copyCommand = (command) => {
-  navigator.clipboard.writeText(command);
-  alert(`${command} をコピーしました`);
-};
-
-  const filteredEmotes = emotes.filter((emote) => {
+  const filteredVehicles = vehicles.filter((vehicle) => {
     const text = searchText.toLowerCase();
 
     const matchText =
-      (emote.englishName || "").toLowerCase().includes(text) ||
-      (emote.japaneseName || "").toLowerCase().includes(text) ||
-      (emote.command || "").toLowerCase().includes(text) ||
-      (emote.meaning || "").toLowerCase().includes(text) ||
-      (emote.note || "").toLowerCase().includes(text);
+      (vehicle.vehicleName || "").toLowerCase().includes(text) ||
+      (vehicle.vehicleKana || "").toLowerCase().includes(text) ||
+      (vehicle.price || "").toLowerCase().includes(text) ||
+      (vehicle.acceleration1 || "").toLowerCase().includes(text) ||
+      (vehicle.acceleration2 || "").toLowerCase().includes(text) ||
+      (vehicle.topSpeed || "").toLowerCase().includes(text) ||
+      (vehicle.grip || "").toLowerCase().includes(text) ||
+      (vehicle.loadCapacity || "").toLowerCase().includes(text) ||
+      (vehicle.note || "").toLowerCase().includes(text);
 
     const matchTags =
       searchTags.length === 0 ||
-      searchTags.every((tag) => emote.tags.includes(tag));
+      searchTags.every((tag) => vehicle.tags.includes(tag));
 
     return matchText && matchTags;
   });
 
-  const renderEmoteCard = (emote) => (
-    <div className="emote-card" key={emote.id}>
+  const renderVehicleCard = (vehicle) => (
+    <div className="emote-card" key={vehicle.id}>
       <div className="image-box">
-        {emote.image ? (
-          <img src={emote.image} alt={emote.japaneseName} className="emote-image" />
+        {vehicle.image ? (
+          <img
+            src={vehicle.image}
+            alt={vehicle.vehicleName}
+            className="emote-image"
+          />
         ) : (
           <span>画像なし</span>
         )}
       </div>
 
-      <h3>{emote.englishName} / {emote.japaneseName}</h3>
-      <p className="command">{emote.command}</p>
+      <h3>
+        {vehicle.vehicleName} / {vehicle.vehicleKana}
+      </h3>
+
+      <p className="command">価格：{vehicle.price}</p>
 
       <div className="tag-list">
-        {emote.tags.map((tag) => (
-          <span className="tag" key={tag}>{tag}</span>
+        {vehicle.tags.map((tag) => (
+          <span className="tag" key={tag}>
+            {tag}
+          </span>
         ))}
       </div>
 
-      <p className="meaning">{emote.meaning}</p>
-      <p className="note">{emote.note}</p>
-
-      <div className="copy-button" onClick={() => copyCommand(emote.command)}>
-        コマンドコピー
-      </div>
+      <p className="meaning">加速①：{vehicle.acceleration1}</p>
+      <p className="meaning">加速②：{vehicle.acceleration2}</p>
+      <p className="meaning">トップスピード：{vehicle.topSpeed}</p>
+      <p className="meaning">グリップ：{vehicle.grip}</p>
+      <p className="meaning">積載量：{vehicle.loadCapacity}</p>
+      <p className="note">{vehicle.note}</p>
 
       <div className="card-actions">
-        <div className="edit-button" onClick={() => editEmote(emote)}>編集</div>
-        <div className="delete-button" onClick={() => deleteEmote(emote.id)}>削除</div>
+        <div className="edit-button" onClick={() => editVehicle(vehicle)}>
+          編集
+        </div>
+        <div className="delete-button" onClick={() => deleteVehicle(vehicle.id)}>
+          削除
+        </div>
       </div>
     </div>
   );
@@ -289,7 +323,7 @@ const copyCommand = (command) => {
             textAlign: "center",
           }}
         >
-          <h1 style={{ color: "white" }}>JTS Emote Manager</h1>
+          <h1 style={{ color: "white" }}>JTS Vehicle Manager</h1>
 
           <p style={{ color: "#cbd5e1" }}>
             アクセスコードを入力してください
@@ -325,36 +359,43 @@ const copyCommand = (command) => {
   return (
     <div className="app">
       <aside className="sidebar">
-        <h2 className="logo">JTS Emote</h2>
+        <h2 className="logo">JTS Vehicle</h2>
 
-        <div className={`menu-button ${activeTab === "list" ? "active" : ""}`} onClick={() => setActiveTab("list")}>
-          📋 エモート一覧
+        <div
+          className={`menu-button ${activeTab === "list" ? "active" : ""}`}
+          onClick={() => setActiveTab("list")}
+        >
+          📋 車両一覧
         </div>
 
-        <div className={`menu-button ${activeTab === "search" ? "active" : ""}`} onClick={() => setActiveTab("search")}>
+        <div
+          className={`menu-button ${activeTab === "search" ? "active" : ""}`}
+          onClick={() => setActiveTab("search")}
+        >
           🔍 検索
         </div>
 
-        <div className={`menu-button ${activeTab === "register" ? "active" : ""}`} onClick={() => setActiveTab("register")}>
+        <div
+          className={`menu-button ${activeTab === "register" ? "active" : ""}`}
+          onClick={() => setActiveTab("register")}
+        >
           ➕ 登録
         </div>
       </aside>
 
       <main className="main">
-
         <div style={{ textAlign: "right", marginBottom: "10px" }}>
-  <button onClick={logout}>
-    ログアウト
-  </button>
-</div>
+          <button onClick={logout}>ログアウト</button>
+        </div>
 
-        <h1>JTS Emote Manager</h1>
+        <h1>JTS Vehicle Manager</h1>
 
         {activeTab === "list" && (
           <section>
-            <h2 className="page-title">📋 エモート一覧</h2>
+            <h2 className="page-title">📋 車両一覧</h2>
+
             <div className="card-grid">
-              {emotes.map((emote) => renderEmoteCard(emote))}
+              {vehicles.map((vehicle) => renderVehicleCard(vehicle))}
             </div>
           </section>
         )}
@@ -367,16 +408,19 @@ const copyCommand = (command) => {
               <input
                 className="text-input"
                 type="text"
-                placeholder="英語名・日本語名・コマンド・意味・備考で検索"
+                placeholder="車名・価格・加速・トップスピード・グリップ・積載量・備考で検索"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
 
               <div className="tag-select-area">
                 <p>タグ検索（複数選択可）</p>
+
                 {tagOptions.map((tag) => (
                   <div
-                    className={`tag-button ${searchTags.includes(tag) ? "selected" : ""}`}
+                    className={`tag-button ${
+                      searchTags.includes(tag) ? "selected" : ""
+                    }`}
                     key={tag}
                     onClick={() => toggleSearchTag(tag)}
                   >
@@ -386,19 +430,24 @@ const copyCommand = (command) => {
               </div>
 
               <div className="search-actions">
-                <div className="clear-button" onClick={() => {
-                  setSearchText("");
-                  setSearchTags([]);
-                }}>
+                <div
+                  className="clear-button"
+                  onClick={() => {
+                    setSearchText("");
+                    setSearchTags([]);
+                  }}
+                >
                   検索条件をリセット
                 </div>
 
-                <p className="result-count">検索結果：{filteredEmotes.length}件</p>
+                <p className="result-count">
+                  検索結果：{filteredVehicles.length}件
+                </p>
               </div>
             </div>
 
             <div className="card-grid search-result-grid">
-              {filteredEmotes.map((emote) => renderEmoteCard(emote))}
+              {filteredVehicles.map((vehicle) => renderVehicleCard(vehicle))}
             </div>
           </section>
         )}
@@ -406,21 +455,86 @@ const copyCommand = (command) => {
         {activeTab === "register" && (
           <section className="panel">
             <h2 className="page-title">
-              {editingId ? "✏️ エモート編集" : "➕ 登録"}
+              {editingId ? "✏️ 車両編集" : "➕ 車両登録"}
             </h2>
 
             <div className="form-grid">
-              <input className="text-input" placeholder="エモート名（英語）" value={form.englishName} onChange={(e) => handleChange("englishName", e.target.value)} />
-              <input className="text-input" placeholder="エモート名（日本語）" value={form.japaneseName} onChange={(e) => handleChange("japaneseName", e.target.value)} />
-              <input className="text-input" placeholder="コマンド 例：e dance" value={form.command} onChange={(e) => handleChange("command", e.target.value)} />
-              <input className="text-input" placeholder="意味" value={form.meaning} onChange={(e) => handleChange("meaning", e.target.value)} />
-              <textarea className="text-area" placeholder="備考" value={form.note} onChange={(e) => handleChange("note", e.target.value)} />
+              <input
+                className="text-input"
+                placeholder="車名（英語）"
+                value={form.vehicleName}
+                onChange={(e) => handleChange("vehicleName", e.target.value)}
+              />
+
+              <input
+                className="text-input"
+                placeholder="車名（カタカナ）"
+                value={form.vehicleKana}
+                onChange={(e) => handleChange("vehicleKana", e.target.value)}
+              />
+
+              <input
+                className="text-input"
+                placeholder="価格"
+                value={form.price}
+                onChange={(e) => handleChange("price", e.target.value)}
+              />
+
+              <input
+                className="text-input"
+                placeholder="加速①"
+                value={form.acceleration1}
+                onChange={(e) => handleChange("acceleration1", e.target.value)}
+              />
+
+              <input
+                className="text-input"
+                placeholder="加速②"
+                value={form.acceleration2}
+                onChange={(e) => handleChange("acceleration2", e.target.value)}
+              />
+
+              <input
+                className="text-input"
+                placeholder="トップスピード"
+                value={form.topSpeed}
+                onChange={(e) => handleChange("topSpeed", e.target.value)}
+              />
+
+              <select
+                className="text-input"
+                value={form.grip}
+                onChange={(e) => handleChange("grip", e.target.value)}
+              >
+                {gripOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                className="text-input"
+                placeholder="積載量"
+                value={form.loadCapacity}
+                onChange={(e) => handleChange("loadCapacity", e.target.value)}
+              />
+
+              <textarea
+                className="text-area"
+                placeholder="備考"
+                value={form.note}
+                onChange={(e) => handleChange("note", e.target.value)}
+              />
 
               <div className="tag-select-area">
                 <p>タグ（複数選択可）</p>
+
                 {tagOptions.map((tag) => (
                   <div
-                    className={`tag-button ${form.tags.includes(tag) ? "selected" : ""}`}
+                    className={`tag-button ${
+                      form.tags.includes(tag) ? "selected" : ""
+                    }`}
                     key={tag}
                     onClick={() => toggleFormTag(tag)}
                   >
@@ -429,16 +543,25 @@ const copyCommand = (command) => {
                 ))}
               </div>
 
-              <input className="file-input" type="file" accept="image/*" onChange={handleImageChange} />
+              <input
+                className="file-input"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
 
               {form.image && (
                 <div className="preview-box">
                   <p>画像プレビュー</p>
-                  <img src={form.image} alt="プレビュー" className="preview-image" />
+                  <img
+                    src={form.image}
+                    alt="プレビュー"
+                    className="preview-image"
+                  />
                 </div>
               )}
 
-              <div className="save-button" onClick={saveEmote}>
+              <div className="save-button" onClick={saveVehicle}>
                 {editingId ? "更新する" : "登録する"}
               </div>
 
