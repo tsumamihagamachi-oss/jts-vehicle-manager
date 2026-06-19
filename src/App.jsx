@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
-const tagOptions = ["コンパクト", "クーペ", "セダン", "SUV", "オフロード", "バン", "スーパーカー", "バイク", "船"];
+const tagOptions = ["コンパクト", "クーペ", "セダン", "SUV", "オフロード", "バン", "マッスル", "スーパー", "スポーツ", "クラッシックスポーツ", "バイク", "船", "ヘリ", "飛行機"];
 const gripOptions = ["非常に安定", "安定", "普通", "滑りやすい"];
 
 function App() {
