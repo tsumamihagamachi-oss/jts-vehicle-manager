@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
-const tagOptions = ["通常", "ダンス", "ポーズ", "上半身", "全身", "小物", "共有"];
+const tagOptions = ["通常", "ポーズ", "ダンス", "小物", "共有", "上半身", "全身"];
 
 function App() {
   const [activeTab, setActiveTab] = useState("list");
