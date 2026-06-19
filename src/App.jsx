@@ -11,6 +11,14 @@ function App() {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
+  const ACCESS_CODE = "JTS-EMOTE";
+
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("jts-auth") === "ok"
+  );
+
+  const [accessCode, setAccessCode] = useState("");
+
   const [form, setForm] = useState({
     englishName: "",
     japaneseName: "",
@@ -190,12 +198,26 @@ function App() {
     }
 
     await loadEmotes();
-  };
+};
 
-  const copyCommand = (command) => {
-    navigator.clipboard.writeText(command);
-    alert(`${command} をコピーしました`);
-  };
+const login = () => {
+  if (accessCode === ACCESS_CODE) {
+    localStorage.setItem("jts-auth", "ok");
+    setIsLoggedIn(true);
+  } else {
+    alert("アクセスコードが違います");
+  }
+};
+
+const logout = () => {
+  localStorage.removeItem("jts-auth");
+  setIsLoggedIn(false);
+};
+
+const copyCommand = (command) => {
+  navigator.clipboard.writeText(command);
+  alert(`${command} をコピーしました`);
+};
 
   const filteredEmotes = emotes.filter((emote) => {
     const text = searchText.toLowerCase();
@@ -247,6 +269,59 @@ function App() {
     </div>
   );
 
+  if (!isLoggedIn) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#0f172a",
+        }}
+      >
+        <div
+          style={{
+            background: "#1e293b",
+            padding: "30px",
+            borderRadius: "12px",
+            width: "400px",
+            textAlign: "center",
+          }}
+        >
+          <h1 style={{ color: "white" }}>JTS Emote Manager</h1>
+
+          <p style={{ color: "#cbd5e1" }}>
+            アクセスコードを入力してください
+          </p>
+
+          <input
+            value={accessCode}
+            onChange={(e) => setAccessCode(e.target.value)}
+            placeholder="アクセスコード"
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginTop: "10px",
+            }}
+          />
+
+          <button
+            onClick={login}
+            style={{
+              marginTop: "15px",
+              width: "100%",
+              padding: "10px",
+              cursor: "pointer",
+            }}
+          >
+            ログイン
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -266,6 +341,13 @@ function App() {
       </aside>
 
       <main className="main">
+
+        <div style={{ textAlign: "right", marginBottom: "10px" }}>
+  <button onClick={logout}>
+    ログアウト
+  </button>
+</div>
+
         <h1>GTA Emote Manager</h1>
 
         {activeTab === "list" && (
