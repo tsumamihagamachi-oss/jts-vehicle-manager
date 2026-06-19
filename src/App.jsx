@@ -7,7 +7,7 @@ const gripOptions = ["非常に安定", "安定", "普通", "滑りやすい"];
 function App() {
   const [activeTab, setActiveTab] = useState("list");
   const [searchText, setSearchText] = useState("");
-  const [searchTags, setSearchTags] = useState([]);
+  const [searchTag, setSearchTag] = useState("");
   const [sortType, setSortType] = useState("id");
   const [vehicles, setVehicles] = useState([]);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
@@ -31,7 +31,7 @@ function App() {
     grip: "普通",
     loadCapacity: "",
     note: "",
-    tags: [],
+    tag: "",
     image: "",
   });
 
@@ -63,7 +63,7 @@ function App() {
       grip: item.grip || "普通",
       loadCapacity: item.load_capacity || "",
       note: item.note || "",
-      tags: item.tags ? item.tags.split(",") : [],
+      tag: item.tags || "",
     }));
 
     setVehicles(convertedData);
@@ -105,19 +105,15 @@ function App() {
     return data.publicUrl;
   };
 
-  const toggleFormTag = (tag) => {
-    if (form.tags.includes(tag)) {
-      setForm({ ...form, tags: form.tags.filter((t) => t !== tag) });
-    } else {
-      setForm({ ...form, tags: [...form.tags, tag] });
-    }
+  const selectFormTag = (tag) => {
+    setForm({ ...form, tag });
   };
 
-  const toggleSearchTag = (tag) => {
-    if (searchTags.includes(tag)) {
-      setSearchTags(searchTags.filter((t) => t !== tag));
+  const selectSearchTag = (tag) => {
+    if (searchTag === tag) {
+      setSearchTag("");
     } else {
-      setSearchTags([...searchTags, tag]);
+      setSearchTag(tag);
     }
   };
 
@@ -132,7 +128,7 @@ function App() {
       grip: "普通",
       loadCapacity: "",
       note: "",
-      tags: [],
+      tag: "",
       image: "",
     });
 
@@ -158,7 +154,7 @@ function App() {
       grip: form.grip,
       load_capacity: form.loadCapacity,
       note: form.note,
-      tags: form.tags.join(","),
+      tags: form.tag,
       image_url: uploadedImageUrl,
     };
 
@@ -201,7 +197,7 @@ function App() {
       grip: vehicle.grip,
       loadCapacity: vehicle.loadCapacity,
       note: vehicle.note,
-      tags: vehicle.tags,
+      tag: vehicle.tag,
       image: vehicle.image,
     });
 
@@ -251,43 +247,41 @@ function App() {
       (vehicle.loadCapacity || "").toLowerCase().includes(text) ||
       (vehicle.note || "").toLowerCase().includes(text);
 
-    const matchTags =
-      searchTags.length === 0 ||
-      searchTags.every((tag) => vehicle.tags.includes(tag));
+    const matchTags = searchTag === "" || vehicle.tag === searchTag;
 
     return matchText && matchTags;
   });
 
   const getNumber = (value) => {
-  const number = Number(String(value || "").replace(/,/g, ""));
-  return isNaN(number) ? 0 : number;
-};
+    const number = Number(String(value || "").replace(/,/g, ""));
+    return isNaN(number) ? 0 : number;
+  };
 
-const sortedVehicles = [...filteredVehicles].sort((a, b) => {
-  if (sortType === "vehicleName") {
-  return a.vehicleName.localeCompare(b.vehicleName);
-}
-  if (sortType === "priceLow") {
-    return getNumber(a.price) - getNumber(b.price);
-  }
+  const sortedVehicles = [...filteredVehicles].sort((a, b) => {
+    if (sortType === "vehicleName") {
+      return a.vehicleName.localeCompare(b.vehicleName);
+    }
 
-  if (sortType === "priceHigh") {
-    return getNumber(b.price) - getNumber(a.price);
-  }
+    if (sortType === "priceLow") {
+      return getNumber(a.price) - getNumber(b.price);
+    }
 
-  if (sortType === "topSpeedHigh") {
-    return getNumber(b.topSpeed) - getNumber(a.topSpeed);
-  }
+    if (sortType === "priceHigh") {
+      return getNumber(b.price) - getNumber(a.price);
+    }
 
-  if (sortType === "loadCapacityHigh") {
-    return getNumber(b.loadCapacity) - getNumber(a.loadCapacity);
-  }
+    if (sortType === "topSpeedHigh") {
+      return getNumber(b.topSpeed) - getNumber(a.topSpeed);
+    }
 
-  return a.id - b.id;
-});
+    if (sortType === "loadCapacityHigh") {
+      return getNumber(b.loadCapacity) - getNumber(a.loadCapacity);
+    }
+
+    return a.id - b.id;
+  });
 
   const renderVehicleCard = (vehicle) => (
-
     <div className="emote-card" key={vehicle.id}>
       <div className="image-box">
         {vehicle.image ? (
@@ -308,11 +302,7 @@ const sortedVehicles = [...filteredVehicles].sort((a, b) => {
       <p className="command">価格：{vehicle.price}</p>
 
       <div className="tag-list">
-        {vehicle.tags.map((tag) => (
-          <span className="tag" key={tag}>
-            {tag}
-          </span>
-        ))}
+        {vehicle.tag && <span className="tag">{vehicle.tag}</span>}
       </div>
 
       <p className="meaning">加速①：{vehicle.acceleration1}</p>
@@ -425,18 +415,18 @@ const sortedVehicles = [...filteredVehicles].sort((a, b) => {
             <h2 className="page-title">📋 車両一覧</h2>
 
             <select
-  className="text-input"
-  value={sortType}
-  onChange={(e) => setSortType(e.target.value)}
-  style={{ marginBottom: "15px" }}
->
-  <option value="id">登録順</option>
-  <option value="vehicleName">車名順</option>
-  <option value="priceLow">価格が安い順</option>
-  <option value="priceHigh">価格が高い順</option>
-  <option value="topSpeedHigh">トップスピード順</option>
-  <option value="loadCapacityHigh">積載量順</option>
-</select>
+              className="text-input"
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value)}
+              style={{ marginBottom: "15px" }}
+            >
+              <option value="id">登録順</option>
+              <option value="vehicleName">車名順</option>
+              <option value="priceLow">価格が安い順</option>
+              <option value="priceHigh">価格が高い順</option>
+              <option value="topSpeedHigh">トップスピード順</option>
+              <option value="loadCapacityHigh">積載量順</option>
+            </select>
 
             <div className="card-grid">
               {sortedVehicles.map((vehicle) => renderVehicleCard(vehicle))}
@@ -457,16 +447,29 @@ const sortedVehicles = [...filteredVehicles].sort((a, b) => {
                 onChange={(e) => setSearchText(e.target.value)}
               />
 
+              <select
+                className="text-input"
+                value={sortType}
+                onChange={(e) => setSortType(e.target.value)}
+              >
+                <option value="id">登録順</option>
+                <option value="vehicleName">車名順</option>
+                <option value="priceLow">価格が安い順</option>
+                <option value="priceHigh">価格が高い順</option>
+                <option value="topSpeedHigh">トップスピード順</option>
+                <option value="loadCapacityHigh">積載量順</option>
+              </select>
+
               <div className="tag-select-area">
-                <p>タグ検索（複数選択可）</p>
+                <p>タグ検索（1つ選択）</p>
 
                 {tagOptions.map((tag) => (
                   <div
                     className={`tag-button ${
-                      searchTags.includes(tag) ? "selected" : ""
+                      searchTag === tag ? "selected" : ""
                     }`}
                     key={tag}
-                    onClick={() => toggleSearchTag(tag)}
+                    onClick={() => selectSearchTag(tag)}
                   >
                     {tag}
                   </div>
@@ -478,14 +481,15 @@ const sortedVehicles = [...filteredVehicles].sort((a, b) => {
                   className="clear-button"
                   onClick={() => {
                     setSearchText("");
-                    setSearchTags([]);
+                    setSearchTag("");
+                    setSortType("id");
                   }}
                 >
                   検索条件をリセット
                 </div>
 
                 <p className="result-count">
-                  検索結果：{filteredVehicles.length}件
+                  検索結果：{sortedVehicles.length}件
                 </p>
               </div>
             </div>
@@ -572,15 +576,15 @@ const sortedVehicles = [...filteredVehicles].sort((a, b) => {
               />
 
               <div className="tag-select-area">
-                <p>タグ（複数選択可）</p>
+                <p>タグ（1つ選択）</p>
 
                 {tagOptions.map((tag) => (
                   <div
                     className={`tag-button ${
-                      form.tags.includes(tag) ? "selected" : ""
+                      form.tag === tag ? "selected" : ""
                     }`}
                     key={tag}
-                    onClick={() => toggleFormTag(tag)}
+                    onClick={() => selectFormTag(tag)}
                   >
                     {tag}
                   </div>
