@@ -1,0 +1,317 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  background: #111827;
+  color: white;
+  font-family: sans-serif;
+}
+
+.app {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: #111827;
+  color: white;
+}
+
+/* サイドバー */
+
+.sidebar {
+  width: 280px;
+  min-height: 100vh;
+  background: #0f172a;
+  padding: 24px;
+  border-right: 1px solid #1e293b;
+}
+
+.logo {
+  margin-bottom: 24px;
+  font-size: 32px;
+  color: white;
+}
+
+.menu-button {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: #334155;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+
+.menu-button:hover {
+  background: #475569;
+}
+
+.menu-button.active {
+  background: #2563eb;
+}
+
+/* メイン */
+
+.main {
+  flex: 1;
+  padding: 40px;
+  background: #111827;
+}
+
+.main h1 {
+  margin-bottom: 24px;
+  font-size: 42px;
+  color: white;
+}
+
+.page-title {
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* カード */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.emote-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.image-box {
+  height: 160px;
+  background: #0f172a;
+  border: 1px dashed #475569;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+.command {
+  color: #93c5fd;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.tag-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.tag {
+  background: #334155;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.meaning {
+  margin-top: 10px;
+  color: white;
+}
+
+.note {
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+/* パネル・フォーム */
+
+.panel {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.form-grid {
+  width: 100%;
+}
+
+.text-input,
+.text-area {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  color: white;
+}
+
+.text-area {
+  min-height: 120px;
+}
+
+/* クリック系 */
+
+.tag-select-area {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.tag-button {
+  display: inline-block;
+  background: #334155;
+  color: white;
+  border-radius: 999px;
+  padding: 8px 12px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tag-button:hover {
+  background: #475569;
+}
+
+.tag-button.selected {
+  background: #2563eb;
+}
+
+.copy-button,
+.save-button {
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 10px;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  font-weight: bold;
+}
+
+.copy-button:hover,
+.save-button:hover {
+  background: #1d4ed8;
+}
+
+.file-input {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: white;
+}
+.emote-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.preview-box {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.preview-box p {
+  margin-bottom: 8px;
+  color: #cbd5e1;
+}
+
+.preview-image {
+  width: 240px;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.search-panel {
+  margin-bottom: 24px;
+}
+
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.clear-button {
+  display: inline-block;
+  background: #475569;
+  color: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+}
+
+.clear-button:hover {
+  background: #64748b;
+}
+
+.result-count {
+  color: #cbd5e1;
+}
+
+.search-result-grid {
+  margin-top: 24px;
+}
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-button,
+.delete-button,
+.cancel-button {
+  flex: 1;
+  text-align: center;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+}
+
+.edit-button {
+  background: #475569;
+  color: white;
+}
+
+.edit-button:hover {
+  background: #64748b;
+}
+
+.delete-button {
+  background: #991b1b;
+  color: white;
+}
+
+.delete-button:hover {
+  background: #b91c1c;
+}
+
+.cancel-button {
+  margin-top: 10px;
+  background: #475569;
+  color: white;
+}
