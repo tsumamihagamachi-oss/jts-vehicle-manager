@@ -8,6 +8,7 @@ function App() {
   const [activeTab, setActiveTab] = useState("list");
   const [searchText, setSearchText] = useState("");
   const [searchTags, setSearchTags] = useState([]);
+  const [sortType, setSortType] = useState("id");
   const [vehicles, setVehicles] = useState([]);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -257,7 +258,36 @@ function App() {
     return matchText && matchTags;
   });
 
+  const getNumber = (value) => {
+  const number = Number(String(value || "").replace(/,/g, ""));
+  return isNaN(number) ? 0 : number;
+};
+
+const sortedVehicles = [...filteredVehicles].sort((a, b) => {
+  if (sortType === "vehicleName") {
+  return a.vehicleName.localeCompare(b.vehicleName);
+}
+  if (sortType === "priceLow") {
+    return getNumber(a.price) - getNumber(b.price);
+  }
+
+  if (sortType === "priceHigh") {
+    return getNumber(b.price) - getNumber(a.price);
+  }
+
+  if (sortType === "topSpeedHigh") {
+    return getNumber(b.topSpeed) - getNumber(a.topSpeed);
+  }
+
+  if (sortType === "loadCapacityHigh") {
+    return getNumber(b.loadCapacity) - getNumber(a.loadCapacity);
+  }
+
+  return a.id - b.id;
+});
+
   const renderVehicleCard = (vehicle) => (
+
     <div className="emote-card" key={vehicle.id}>
       <div className="image-box">
         {vehicle.image ? (
@@ -394,8 +424,22 @@ function App() {
           <section>
             <h2 className="page-title">📋 車両一覧</h2>
 
+            <select
+  className="text-input"
+  value={sortType}
+  onChange={(e) => setSortType(e.target.value)}
+  style={{ marginBottom: "15px" }}
+>
+  <option value="id">登録順</option>
+  <option value="vehicleName">車名順</option>
+  <option value="priceLow">価格が安い順</option>
+  <option value="priceHigh">価格が高い順</option>
+  <option value="topSpeedHigh">トップスピード順</option>
+  <option value="loadCapacityHigh">積載量順</option>
+</select>
+
             <div className="card-grid">
-              {vehicles.map((vehicle) => renderVehicleCard(vehicle))}
+              {sortedVehicles.map((vehicle) => renderVehicleCard(vehicle))}
             </div>
           </section>
         )}
@@ -447,7 +491,7 @@ function App() {
             </div>
 
             <div className="card-grid search-result-grid">
-              {filteredVehicles.map((vehicle) => renderVehicleCard(vehicle))}
+              {sortedVehicles.map((vehicle) => renderVehicleCard(vehicle))}
             </div>
           </section>
         )}
