@@ -18,7 +18,7 @@ function App() {
     localStorage.getItem("jts-vehicle-auth") === "ok"
   );
 
-  const [accessCode, setAccessCode] = useState("JTS-VEHICLES");
+  const [accessCode, setAccessCode] = useState("");
 
   const [form, setForm] = useState({
     vehicleName: "",
