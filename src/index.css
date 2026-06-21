@@ -26,10 +26,16 @@ body,
 
 .sidebar {
   width: 280px;
-  min-height: 100vh;
+  height: 100vh;
+
+  position: sticky;
+  top: 0;
+
   background: #0f172a;
   padding: 24px;
   border-right: 1px solid #1e293b;
+
+  overflow-y: auto;
 }
 
 .logo {
